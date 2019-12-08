@@ -1,0 +1,95 @@
+/* Chrome, Safari, Edge, Opera */
+::-webkit-scrollbar {
+	display: none;
+}
+
+div {
+	box-sizing: border-box;
+}
+
+html,
+body, .horizontal {
+	overflow: hidden;
+	margin: 0;
+	scrollbar-width: none;
+	height: 100%;
+}
+
+.horizontal > div {
+	position: absolute;
+	width: 50%;
+	height: 100%;
+}
+
+.horizontal > div:first-child {
+	left: 0;
+}
+.horizontal > div:last-child {
+	right: 0;
+}
+
+.vertical {
+	display: flex;
+	flex-direction: column;
+}
+
+#playground {
+	width: 100%;
+	flex-basis: 50%;
+	flex-shrink: 0;
+    background:
+        linear-gradient(-90deg, rgba(0,0,0,.05) 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px), 
+        linear-gradient(-90deg, rgba(0, 0, 0, .04) 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px),
+        linear-gradient(transparent 3px, #f2f2f2 3px, #f2f2f2 78px, transparent 78px),
+        linear-gradient(-90deg, #aaa 1px, transparent 1px),
+        linear-gradient(-90deg, transparent 3px, #f2f2f2 3px, #f2f2f2 78px, transparent 78px),
+        linear-gradient(#aaa 1px, transparent 1px),
+        #f2f2f2;
+    background-size:
+        16px 16px,
+        16px 16px,
+        80px 80px,
+        80px 80px,
+        80px 80px,
+        80px 80px,
+        80px 80px,
+        80px 80px;
+}
+
+#bar {
+	flex-shrink: 0;
+	direction: rtl;
+	flex-basis: 30px;
+	border: none;
+	background-color: rgb(52, 45, 73);
+}
+
+#bar > button {
+	border: none;
+	background: none;
+	height: 100%;
+	width: 60px;
+}
+
+#console {
+	flex-grow: 1;
+	background-color: black;
+	color: white;
+	font-family: monospace;
+	line-height: 1.2em;
+	white-space: pre;
+	border: thin gray solid;
+	padding: 0.5em;
+	overflow-y: scroll;
+	scrollbar-color: rgb(129, 129, 129) rgb(52, 45, 73);
+}
+
+#pause {
+	fill: white;
+}
+
+#pausebutton.active #pause {
+	fill:rgb(116, 130, 253);
+}
