@@ -1,0 +1,165 @@
+#define EXPORT __attribute__((visibility("default"))) extern "C"
+#define IMPORT extern "C"
+#define PRINT_LIT(lit) puts((char *)lit, sizeof(lit) - 1)
+#define memcpy __builtin_memcpy
+
+#include "wasm_definitions.h"
+
+extern u8 __data_end;
+extern u8 __heap_base;
+
+u8 WASM_HEADER[] = {
+    0x00, 0x61, 0x73, 0x6d, //magic numbers
+    0x01, 0x00, 0x00, 0x00, //wasm version
+};
+
+IMPORT void puts(char *address, u32 size);
+IMPORT void put(char address);
+IMPORT void putbool(bool value);
+IMPORT void putu32(u32 num);
+IMPORT void puti32(i32 num);
+IMPORT void drawCircle(f32 x, f32 y, f32 r);
+
+u8* insertF32(u8* out, f32 val) {
+    memcpy(out, &val, 4);
+    return out + 4;
+}
+
+EXPORT u32 getWasmFromCpp(char *sourceCode, u32 length)
+{
+    //start placing the compiled output immediately after the input
+    u8 *out = &__heap_base + length;
+
+    //begin the outputted program with the 8 byte wasm header
+    for (int i = 0; i < 8; ++i) {
+        *out++ = WASM_HEADER[i];
+    }
+
+    *out++ = wasm::section::Type;
+    *out++ = 19; //15 bytes belong to this section
+    *out++ = 4; //four func headers defined
+
+    *out++ = wasm::type::func;
+    *out++ = 0;
+    *out++ = 0;
+
+    *out++ = wasm::type::func;
+    *out++ = 1;
+    *out++ = wasm::type::f32;
+    *out++ = 0;
+
+    *out++ = wasm::type::func;
+    *out++ = 2;
+    *out++ = wasm::type::f32;
+    *out++ = wasm::type::f32;
+    *out++ = 0;
+    
+    *out++ = wasm::type::func;
+    *out++ = 3;
+    *out++ = wasm::type::f32;
+    *out++ = wasm::type::f32;
+    *out++ = wasm::type::f32;
+    *out++ = 0;
+
+
+    *out++ = wasm::section::Import;
+    *out++ = 31; //bytes belong to this section
+    *out++ = 2; //# functions to import
+
+    *out++ = sizeof("env") - 1;
+    *out++ = 'e';
+    *out++ = 'n';
+    *out++ = 'v';
+    *out++ = sizeof("drawCircle") - 1;
+    *out++ = 'd';
+    *out++ = 'r';
+    *out++ = 'a';
+    *out++ = 'w';
+    *out++ = 'C';
+    *out++ = 'i';
+    *out++ = 'r';
+    *out++ = 'c';
+    *out++ = 'l';
+    *out++ = 'e';
+    *out++ = wasm::external::Function;
+    *out++ = 3; //use the fourth function signature: (f32, f32, f32) => (void)
+
+    *out++ = sizeof("env") - 1;
+    *out++ = 'e';
+    *out++ = 'n';
+    *out++ = 'v';
+    *out++ = sizeof("putf32") - 1;
+    *out++ = 'p';
+    *out++ = 'u';
+    *out++ = 't';
+    *out++ = 'f';
+    *out++ = '3';
+    *out++ = '2';
+    *out++ = wasm::external::Function;
+    *out++ = 1; //use the second function signature: (f32) => (void)
+
+
+    *out++ = wasm::section::Function;
+    *out++ = 3; //3 bytes belong to this section
+    *out++ = 2; //two functions defined inside this module
+    *out++ = 0; //first uses () -> (void)
+    *out++ = 2; //second uses (f32, f32) -> (void)
+
+
+    *out++ = wasm::section::Memory;
+    *out++ = 4; //3 bytes belong to this section
+    *out++ = 1; //one memory defined
+    *out++ = 1; //memory is limited
+    *out++ = 1; //initial one page
+    *out++ = 1; //max one page
+
+
+    *out++ = wasm::section::Export;
+    *out++ = 16; //15 bytes belong to this section
+    *out++ = 2; //two functions are exported
+
+    *out++ = sizeof("start") - 1;
+    *out++ = 's';
+    *out++ = 't';
+    *out++ = 'a';
+    *out++ = 'r';
+    *out++ = 't';
+    *out++ = wasm::external::Function;
+    *out++ = 2; //export first function
+
+    *out++ = sizeof("loop") - 1;
+    *out++ = 'l';
+    *out++ = 'o';
+    *out++ = 'o';
+    *out++ = 'p';
+    *out++ = wasm::external::Function;
+    *out++ = 3; //export section function
+
+
+    *out++ = wasm::section::Code;
+    *out++ = 18; //bytes belong to this section
+    *out++ = 2; //two functions are defined
+
+    *out++ = 2; //size
+    *out++ = 0; //no local vars
+    *out++ = wasm::end; //do nothing
+
+    *out++ = 13; //size
+    *out++ = 0; //no local vars
+    *out++ = wasm::get_local;
+    *out++ = 0;
+    *out++ = wasm::get_local;
+    *out++ = 0;
+    *out++ = wasm::f32_const;
+    out = insertF32(out, 0.15f);
+    *out++ = wasm::call;
+    *out++ = 0; //drawCircle
+    *out++ = wasm::end;
+
+    u32 addr = (u32)(void*)&(__heap_base) + length;
+    u32 size = (u32)(void*)out - addr;
+
+    //Wasm only supports one return type.  JavaScript doesn't support i64.
+    //For now, limit return address and lengths to 16 bits and pack them together.
+    return (addr << 16) | size;
+}

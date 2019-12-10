@@ -1,0 +1,15 @@
+{
+  "name": "ncc",
+  "version": "1.0.0",
+  "description": "Minimal C++ compiler as a JS library",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "webpack-cli": "^3.3.10"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nathan and Alisson Ross",
+  "license": "ISC"
+}
