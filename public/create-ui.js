@@ -96,7 +96,9 @@ function createRuntime() {
             y = (canvas.height - y * minDim) / 2;
             r = r / 2 * minDim;
 
-            const hue = ((performance.now() / 2000) - Math.floor(performance.now() / 2000)) * 360;
+            const seconds = performance.now() / 1000 - compileTimestamp;
+            const progress = seconds / 4;
+            const hue = (progress - Math.floor(progress)) * 360;
             ctx.fillStyle = "hsl(" + hue + ", 100%, 50%)"
             ctx.beginPath();
             ctx.arc(x, y, r, 0, Math.PI*2);
