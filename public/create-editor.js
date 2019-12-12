@@ -40,7 +40,7 @@ void start() {
     elasticity = -0.8f;
 }
 
-void loop(float seconds, float secondsDelta) {
+void loop(float elapsedSeconds, float deltaSeconds) {
     x = x + vx;
     y = y + vy;
     vy = vy - 0.0005f;
@@ -49,7 +49,13 @@ void loop(float seconds, float secondsDelta) {
         vy = vy * elasticity;
         y = -1;
 
-        std::cout << "boing!\\n";
+        if (vy < 0.005f) {
+            vy = vy + 0.035f;
+            vx = x * -0.05f;
+            std::cout << "Pop!\\n";
+        }
+
+        std::cout << "Boing!\\n";
     }
 
     if (x < -1) {
