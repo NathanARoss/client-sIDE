@@ -8,38 +8,18 @@ div {
 }
 
 html,
-body, .horizontal {
+body {
 	overflow: hidden;
 	margin: 0;
 	scrollbar-width: none;
 	height: 100%;
 }
 
-.horizontal > div {
-	position: absolute;
-	width: 50%;
-	height: 100%;
-}
-
-.horizontal > div:first-child {
-	left: 0;
-}
-.horizontal > div:last-child {
-	right: 0;
-}
-
-.vertical {
-	display: flex;
-	flex-direction: column;
-}
-
 #playground {
 	width: 100%;
-	flex-basis: 50%;
-	flex-shrink: 0;
     background:
         linear-gradient(-90deg, rgba(0,0,0,.05) 1px, transparent 1px),
-        linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px), 
+        linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px),
         linear-gradient(-90deg, rgba(0, 0, 0, .04) 1px, transparent 1px),
         linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px),
         linear-gradient(transparent 3px, #f2f2f2 3px, #f2f2f2 78px, transparent 78px),
@@ -59,9 +39,7 @@ body, .horizontal {
 }
 
 #bar {
-	flex-shrink: 0;
 	direction: rtl;
-	flex-basis: 30px;
 	border: none;
 	background-color: rgb(52, 45, 73);
 }
@@ -74,7 +52,6 @@ body, .horizontal {
 }
 
 #console {
-	flex-grow: 1;
 	background-color: black;
 	color: white;
 	font-family: monospace;
@@ -86,10 +63,88 @@ body, .horizontal {
 	scrollbar-color: rgb(129, 129, 129) rgb(52, 45, 73);
 }
 
-#pause {
-	fill: white;
+#pause-bttn.active #pause {
+	fill: rgb(116, 130, 253);
 }
 
-#pause-bttn.active #pause {
-	fill:rgb(116, 130, 253);
+
+@media all and (max-width: 1079px) {
+    #monaco-editor-window,
+    #playground,
+    #console {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: calc(100% - 30px);
+    }
+    
+    #bar {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: 30px;
+    }
+    
+    #back-bttn {
+        float: left;
+    }
+    
+    body.canvas-mode > #console {
+        background-color: transparent;
+    }
+    
+    body.canvas-mode > #monaco-editor-window,
+    body.consoleMode > #monaco-editor-window,
+    body.consoleMode > #playground,
+    body.edit-mode > #bar > #back-bttn,
+    body.edit-mode > #bar > #pause-bttn,
+    body.canvas-mode > #bar > #disassemble-bttn,
+    body.console-mode > #bar > #disassemble-bttn,
+    body.no-active-module > #bar > #pause-bttn,
+    body.no-active-module > #bar > #play-bttn,
+    body.edit-mode > #console,
+    body.edit-mode > #playground,
+    #fullscreen-bttn {
+        display: none;
+    }
+}
+
+@media all and (min-width: 1080px) {
+    #monaco-editor-window {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100%;
+    }
+    
+    #playground {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 50%;
+    }
+    
+    #bar {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        width: 50%;
+        height: 30px;
+    }
+    
+    #console {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50%;
+        height: calc(50% - 30px);
+    }
+
+    #back-bttn {
+        display: none;
+    }
 }

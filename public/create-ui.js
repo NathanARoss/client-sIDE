@@ -3,6 +3,7 @@ import getDisassembly from "https://nathanross.me/small-wasm-disassembler/disass
 const consoleOutput = document.getElementById("console");
 const playBttn = document.getElementById("play-bttn");
 const pauseBttn = document.getElementById("pause-bttn");
+const backBttn = document.getElementById("back-bttn");
 const disassembleBttn = document.getElementById("disassemble-bttn");
 const UTF8Decoder = new TextDecoder("utf-8");
 
@@ -32,6 +33,19 @@ pauseBttn.onclick = function() {
     }
 
     pauseBttn.classList.toggle("active", secondsElapsedBeforePause !== 0);
+}
+
+backBttn.onclick = function() {
+    activeWasmModule = undefined;
+
+    if (frameRequestId !== undefined) {
+        cancelAnimationFrame(frameRequestId);
+        frameRequestId = undefined;
+    }
+
+    secondsElapsedBeforePause = 0;
+    pauseBttn.classList.remove("active");
+    document.body.className = "edit-mode";
 }
 
 function printToConsole(value) {
@@ -148,6 +162,11 @@ fetch('public/ncc.wasm').then(response =>
             saveFile("user.wasm", newBytes);
         } else if (event.currentTarget === disassembleBttn) {
             printToConsole("\n" + getDisassembly(newBytes, 9) + "\n");
+            document.body.className = "console-mode";
+            
+            if (!activeWasmModule) {
+                document.body.className += " no-active-module";
+            }
         } else {
             compileAndRun(newBytes);
         }
@@ -184,6 +203,8 @@ function compileAndRun(userGeneratedWasmBytes) {
         if (frameRequestId === undefined) {
             frameRequestId = requestAnimationFrame(draw);
         }
+        
+        document.body.className = "canvas-mode";
     });
 }
 
