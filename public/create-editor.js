@@ -40,7 +40,7 @@ void start() {
     elasticity = -0.8f;
 }
 
-void loop(float elapsedSeconds, float deltaSeconds) {
+void loop(float secondsSinceStart, float secondsSincePrevFrame) {
     x = x + vx;
     y = y + vy;
     vy = vy - 0.0005f;
