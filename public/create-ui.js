@@ -117,7 +117,7 @@ const runtimeImports = new createRuntime();
 //         console.log(results);
 //     });
 
-fetch('ncc.wasm').then(response =>
+fetch('public/ncc.wasm').then(response =>
     response.arrayBuffer()
 ).then(bytes =>
     WebAssembly.instantiate(bytes, compilerImports)
