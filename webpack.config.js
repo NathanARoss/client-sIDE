@@ -6,7 +6,7 @@ module.exports = {
         fs: 'empty'
     },
     mode: 'production',
-    entry: './index.js',
+    entry: './src/webpack-entry.js',
     output: {
         path: path.resolve(__dirname, 'public'),
         filename: "monaco.bundle.js",
