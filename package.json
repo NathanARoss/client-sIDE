@@ -1,5 +1,5 @@
 {
-  "name": "ncc",
+  "name": "client-sIDE",
   "version": "1.0.0",
   "description": "Minimal C++ compiler as a JS library",
   "main": "index.js",

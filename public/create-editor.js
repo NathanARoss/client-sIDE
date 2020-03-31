@@ -1,29 +1,10 @@
 const canvas = document.getElementById("playground");
 let minDim = 1;
+let compiler;
 
 const sampleProgram = `\
 #include <iostream>
 #include <canvas>
-
-/* In this early version of Toy++ and ncc, only
-basic syntax is supported. Global variables must
-not have initial values. Only one operation per
-line (and no combined operators). No loops.
-No defining your own functions.
-
-However, arbitrary global and local variables
-(of float type) are supported. State can be
-saved between frames using global variables as
-demonstrated.
-
-If statements are supported, but not elses or
-compound boolean expressions.
-
-Print statements are supported, but only for
-single string literals.
-
-This is a Minimum Viable Product which I will
-work on over winter break. */
 
 float vx;
 float vy;
@@ -32,7 +13,7 @@ float y;
 
 float elasticity;
 
-void start() {
+void main() {
     x = -1.0f;
     y = 0.0f;
     vx = 0.015f;
@@ -40,7 +21,7 @@ void start() {
     elasticity = -0.8f;
 }
 
-void loop(float secondsSinceStart, float secondsSincePrevFrame) {
+void update(float secondsSinceStart, float secondsSincePrevFrame) {
     x = x + vx;
     y = y + vy;
     vy = vy - 0.0005f;
@@ -151,6 +132,11 @@ window.onload = function () {
         }
     });
 
+    //the compiler finished loading first
+    if (compiler) {
+        activateMenu();
+    }
+
     window.onresize = function () {
         editor.layout();
         var scale = window.devicePixelRatio;
@@ -158,7 +144,7 @@ window.onload = function () {
         canvas.height = window.innerHeight * scale;
 
         minDim = Math.min(canvas.width, canvas.height);
-        console.log("resizing to: ", canvas.width, canvas.height);
+        // console.log("resizing to: ", canvas.width, canvas.height);
     }
     window.onresize();
 }

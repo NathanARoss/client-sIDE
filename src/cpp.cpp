@@ -30,7 +30,7 @@ IMPORT void puts(char *address, u32 size);
 IMPORT void put(char address);
 IMPORT void putbool(bool value);
 IMPORT void putu32(u32 num);
-IMPORT void puti32(i32 num);
+IMPORT void putnum(i32 num);
 IMPORT void drawCircle(f32 x, f32 y, f32 r);
 
 //a better hashing algorithm would reduce collisions between identifiers
@@ -297,7 +297,7 @@ EXPORT u32 getWasmFromCpp(char *sourceCode, u32 length)
 
             //look for the two known function names rather than properly look to see if the identifier is a function name
             //TODO do this properly
-            if (hash == HASH("start") || hash == HASH("loop")) {
+            if (hash == HASH("main") || hash == HASH("update")) {
                 //skip through the the function body
                 int scopeDepth = 0;
                 while (true) {
@@ -371,18 +371,22 @@ EXPORT u32 getWasmFromCpp(char *sourceCode, u32 length)
 
 
     *writePos++ = wasm::section::Export;
-    *writePos++ = 16; //# of bytes that belong to this section
+    u8* exportSectionSize = writePos; //# of bytes that belong to this section
+    writePos += 2;
     *writePos++ = 2; //two functions are exported
 
-    INSERT_LIT("start", writePos);
+    INSERT_LIT("main", writePos);
     *writePos++ = wasm::external::Function;
     *writePos++ = 3; //index of function
 
-    INSERT_LIT("loop", writePos);
+    INSERT_LIT("update", writePos);
     *writePos++ = wasm::external::Function;
     *writePos++ = 4; //index of function
     // PRINT_LIT("Finished Export section\n");
 
+    u32 size = writePos - exportSectionSize - 2;
+    exportSectionSize[0] = (size & 0x7F) | 0x80;
+    exportSectionSize[1] = size >> 7;
 
     *writePos++ = wasm::section::Code;
     u8 *codeSectionSize = writePos;
@@ -396,17 +400,15 @@ EXPORT u32 getWasmFromCpp(char *sourceCode, u32 length)
     //the findToken() function so I stop repeating code and improve correctness.
     
     //for now, assume an open parenthesis marks the beginning of a function
-    while (readPos < endReadPos && (*readPos != '(' || readPos[-1] != 't' || readPos[-2] != 'r' || readPos[-3] != 'a' || readPos[-4] != 't' || readPos[-5] != 's')) {
+    while (readPos < endReadPos && (*readPos != '(' || readPos[-1] != 'n' || readPos[-2] != 'i' || readPos[-3] != 'a' || readPos[-4] != 'm')) {
         ++readPos;
     }
 
-    // PRINT_LIT("Before Start Function\n");
     compileAndInsertFunction();
-    // PRINT_LIT("Finished Start Function\n");
 
     //I know that there are exactly two functions declared
-    //for now just match "loop(" and "start("
-    while (readPos < endReadPos && (*readPos != '(' || readPos[-1] != 'p' || readPos[-2] != 'o' || readPos[-3] != 'o' || readPos[-4] != 'l')) {
+    //for now just match "update(" and "main("
+    while (readPos < endReadPos && (*readPos != '(' || readPos[-1] != 'e' || readPos[-2] != 't' || readPos[-3] != 'a' || readPos[-4] != 'd' || readPos[-5] != 'p' || readPos[-6] != 'u')) {
         ++readPos;
     }
 
@@ -414,10 +416,7 @@ EXPORT u32 getWasmFromCpp(char *sourceCode, u32 length)
     compileAndInsertFunction();
     // PRINT_LIT("Finished Loop Function\n");
 
-    u32 size = writePos - codeSectionSize - 2;
-    // PRINT_LIT("Code section size: ");
-    // puti32(size);
-    // PRINT_LIT(" bytes\n");
+    size = writePos - codeSectionSize - 2;
     codeSectionSize[0] = (size & 0x7F) | 0x80;
     codeSectionSize[1] = size >> 7;
 
@@ -477,7 +476,7 @@ void compileAndInsertFunction() {
             // PRINT_LIT("Parameter \"");
             // puts(readPos, tokenLen);
             // PRINT_LIT("\" index: ");
-            // puti32(totalVarCount);
+            // putnum(totalVarCount);
             // put('\n');
 
             varTypes[totalVarCount] = paramType;
@@ -534,9 +533,9 @@ void compileAndInsertFunction() {
                         PRINT_LIT("Local \"");
                         puts(readPos, tokenLen);
                         PRINT_LIT("\" index: ");
-                        puti32(totalVarCount);
+                        putnum(totalVarCount);
                         PRINT_LIT("\" type: ");
-                        puti32(wasmType);
+                        putnum(wasmType);
                         put('\n');
 
                         varTypes[totalVarCount] = wasmType;
@@ -678,7 +677,7 @@ void compileExpression(u32 totalVarCount) {
         // PRINT_LIT("Token \"");
         // puts(readPos, tokenLen);
         // PRINT_LIT("\" at ");
-        // puti32((u32)(void*)readPos);
+        // putnum((u32)(void*)readPos);
         // put('\n');
 
         //assume every token is an identifier, a number, or an operator
