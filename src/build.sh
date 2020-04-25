@@ -6,6 +6,7 @@
    -Ofast \
    -nostdlib \
    -Wl,--no-entry \
+   -Wl,--relocatable \
    -Wl,--strip-all \
    -Wl,--export-dynamic \
    -Wl,-z,stack-size=$[1024] \
