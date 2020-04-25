@@ -6,9 +6,12 @@
    -Ofast \
    -nostdlib \
    -Wl,--no-entry \
-   -Wl,--relocatable \
+   -Wl,--allow-undefined \
+   -Wl,--initial-memory=$[65536*10] \
+   -Wl,--max-memory=$[65536*10] \
    -Wl,--strip-all \
    -Wl,--export-dynamic \
+   -Wl,--export=__heap_base \
    -Wl,-z,stack-size=$[1024] \
    -Wl,--stack-first \
    -Wl,--no-merge-data-segments \
