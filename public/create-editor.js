@@ -2,7 +2,7 @@ const canvas = document.getElementById("playground");
 let minDim = 1;
 let compiler;
 
-const sampleProgram = `\
+const sampleProgram = localStorage.getItem("source-code") || `\
 #include <iostream>
 #include <canvas>
 

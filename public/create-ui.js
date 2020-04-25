@@ -15,8 +15,11 @@ let prevTimeStamp;
 let frameRequestId;
 
 function playClicked() {
+    const sourceCode = editor.getValue();
+    localStorage.setItem("source-code", sourceCode);
+
     compiler.compile(
-        editor.getValue(),
+        sourceCode,
         {
             stdout: printToConsole,
             drawCircle: drawCircle
