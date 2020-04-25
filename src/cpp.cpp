@@ -31,7 +31,6 @@ IMPORT void put(char address);
 IMPORT void putbool(bool value);
 IMPORT void putu32(u32 num);
 IMPORT void putnum(i32 num);
-IMPORT void drawCircle(f32 x, f32 y, f32 r);
 
 //a better hashing algorithm would reduce collisions between identifiers
 //TODO
@@ -264,25 +263,6 @@ EXPORT u32 getWasmFromCpp(char *sourceCode, u32 length)
     endReadPos = sourceCode + length;
 
     while (readPos < endReadPos) {
-        //skip preprocessors
-        if (*readPos == '#') {
-            while (*readPos != '\n') {
-                ++readPos;
-            };
-        }
-
-        //skip line comments
-        if (readPos[0] == '/' && readPos[1] == '/') {
-            while (*readPos++ != '\n');
-        }
-
-        //skip block comments
-        if (readPos[0] == '/' && readPos[1] == '*') {
-            while (readPos[-2] != '*' || readPos[-1] != '/') {
-                ++readPos;
-            }
-        }
-
         if (isValidLeadingIDChar(*readPos)) {
             char* endOfToken = findTokenEnd(readPos);
             u32 tokenLen = endOfToken - readPos;

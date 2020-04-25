@@ -14,7 +14,7 @@ function bufferedPuts(chars, stdout) {
     }
 }
 
-//TODO call at the end of every function that prints
+//TODO call at the end of every function (that prints)
 function flushStdout(stdout) {
     if (buffer) {
         stdout(buffer);
@@ -87,13 +87,19 @@ export default function getCompiler(language, customImports) {
             //this object exposes the two public functions but not any internal details
             const compiler = {
                 compileToWasmBinary(sourceCode) {
+                    sourceCode = cppPreprocessor("cpp", sourceCode);
                     const strAsUTF8 = UTF8Encoder.encode(sourceCode);
                 
                     imports.memoryUint8.set(strAsUTF8, exports.__heap_base);
                 
-                    const addrAndSize = exports.getWasmFromCpp(exports.__heap_base, strAsUTF8.length);
-                    const addr = addrAndSize >>> 16;
-                    const size = addrAndSize & 0xFFFF;
+                    const addr = exports.getWasmFromCpp(exports.__heap_base, strAsUTF8.length);
+
+                    //the number of bytes is stored in the same location that we just wrote the source
+                    //code to, but its stored as a 32 bit integer instead of character data,
+                    //and it's rounded up to the next 4 byte alignment
+                    const size = (new Uint32Array(exports.memory.buffer))[(exports.__heap_base.value + 3) >> 2];
+
+                    console.log(addr, size);
                 
                     return imports.memoryUint8.subarray(addr, addr + size);
                 },
@@ -122,4 +128,16 @@ export default function getCompiler(language, customImports) {
             reject(error);
         });
     });
+}
+
+function cppPreprocessor(language, sourceCode) {
+    //removes all comments.  TODO ignore comment markers inside strings, and handle
+    //single line comments that span multiple lines by ending the line with a backslash
+    sourceCode = sourceCode.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//gm, "");
+    
+    //TODO support pre-processor #DEFINE's
+    //for now just remove preprocessors so the compiler doesn't have to detect them
+    sourceCode = sourceCode.replace(/#.*?$/gm, "");
+
+    return sourceCode;
 }
