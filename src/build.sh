@@ -5,6 +5,8 @@
    -flto \
    -Ofast \
    -nostdlib \
+   -ffreestanding \
+   -fno-builtin \
    -Wl,--no-entry \
    -Wl,--allow-undefined \
    -Wl,--initial-memory=$[65536*10] \
