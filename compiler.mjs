@@ -18,6 +18,7 @@ function bufferedPuts(chars, stdout) {
 function flushStdout(stdout) {
     if (buffer) {
         stdout(buffer);
+        buffer = "";
     }
 }
 
@@ -51,7 +52,7 @@ function createImportObject(providedImports) {
         bufferedPuts(message, stdout);
     };
 
-    this.env.putnum = function(num) {
+    this.env.puti32 = function(num) {
         bufferedPuts(String(num), stdout);
     }
 
@@ -62,9 +63,13 @@ function createImportObject(providedImports) {
         bufferedPuts(String(u32Num), stdout);
     };
 
+    this.env.flushStdout = function() {
+        flushStdout(stdout);
+    }
+
     //clang is stuborn about extern C, so each type requires its own import
-    this.env.putf32 = env.putnum;
-    this.env.putf64 = env.putnum;
+    this.env.putf32 = env.puti32;
+    this.env.putf64 = env.puti32;
 
     this.env = Object.assign(this.env, Math);
 }
@@ -98,8 +103,6 @@ export default function getCompiler(language, customImports) {
                     //code to, but its stored as a 32 bit integer instead of character data,
                     //and it's rounded up to the next 4 byte alignment
                     const size = (new Uint32Array(exports.memory.buffer))[(exports.__heap_base.value + 3) >> 2];
-
-                    console.log(addr, size);
                 
                     return imports.memoryUint8.subarray(addr, addr + size);
                 },
@@ -130,10 +133,28 @@ export default function getCompiler(language, customImports) {
     });
 }
 
+const iostream = `\
+extern "C" void puts(char *address, u32 size);
+extern "C" void put(u32 character);
+extern "C" void putu32(u32 num);
+extern "C" void puti32(i32 num);
+extern "C" void putf32(f32 num);
+extern "C" void putf64(f64 num);
+extern "C" void flushStdout();
+`;
+
 function cppPreprocessor(language, sourceCode) {
-    //removes all comments.  TODO ignore comment markers inside strings, and handle
-    //single line comments that span multiple lines by ending the line with a backslash
+    //back-slashes preceeding a newline nullify the newline
+    sourceCode = sourceCode.replace(/\\\n/, "");
+
+    //removes all comments.  TODO ignore comment markers inside strings
     sourceCode = sourceCode.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//gm, "");
+    
+    //replace known include files
+    sourceCode = sourceCode.replace(/#include\s*<iostream>$/gm, iostream);
+
+    //this line is temporary until I implement custom includable files
+    sourceCode = sourceCode.replace(/#include\s*<canvas>$/gm, "extern \"C\" void drawCircle(float x, float y, float r);");
     
     //TODO support pre-processor #DEFINE's
     //for now just remove preprocessors so the compiler doesn't have to detect them
