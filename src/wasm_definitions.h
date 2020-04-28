@@ -11,47 +11,48 @@ typedef double f64;
 
 struct wasm
 {
-    // export function varint(value)
-    // {
-    //     const bytes = [];
-    //     let byte;
+    static u32 varint(u8 *writePos, i32 value)
+    {
+        u8 *c = writePos;
 
-    //     do
-    //     {
-    //         byte = value & 0x7F;
-    //         value = Math.floor(value / 128);
+        u8 byte;
 
-    //         /* sign bit of byte is second high order bit (0x40) */
-    //         if ((value != = 0 && (byte & 0x40) == = 0) || (value != = -1 && (byte & 0x40) != = 0))
-    //         {
-    //             byte |= 0x80;
-    //         }
+        do
+        {
+            byte = value & 0x7F;
+            value >>= 7;
 
-    //         bytes.push(byte);
-    //     } while (byte > 0x7F);
+            /* sign bit of byte is second high order bit (0x40) */
+            if ((value != 0 && (byte & 0x40) == 0) || (value != -1 && (byte & 0x40)))
+            {
+                byte |= 0x80;
+            }
 
-    //     return bytes;
-    // }
+            *c++ = byte;
+        } while (byte & 0x80);
 
-    // export function varuint(value)
-    // {
-    //     const bytes = [];
+        return c - writePos;
+    }
 
-    //     do
-    //     {
-    //         let byte = value & 0x7F;
-    //         value = Math.floor(value / 128);
+    static u32 varuint(u8 *writePos, u32 value)
+    {
+        u8 *c = writePos;
 
-    //         if (value != = 0)
-    //         { /* more bytes to come */
-    //             byte |= 0x80;
-    //         }
+        do
+        {
+            u8 byte = value & 0x7F;
+            value >>= 7;
 
-    //         bytes.push(byte);
-    //     } while (value != = 0);
+            if (value != 0)
+            { /* more bytes to come */
+                byte |= 0x80;
+            }
 
-    //     return bytes;
-    // }
+            *c++ = byte;
+        } while (value != 0);
+
+        return c - writePos;
+    }
 
     struct section
     {
