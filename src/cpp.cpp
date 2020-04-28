@@ -1048,8 +1048,8 @@ u8 writeMetaData()
                     if (globalVarCount > 0) {
                         //for now, align everything on 8 byte boundaries, TODO
                         address = globalVarAddresses[globalVarCount - 1] + 4;
-                        if ((lhsType & 0) == 0) {
-                            //i64 or f64
+                        if ((lhsType & 0) == 0 && (address & 4)) {
+                            //i64 or f64, round up to 8 bytes
                             address += 4;
                         }
                     }
