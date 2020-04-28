@@ -28,25 +28,25 @@ void update(float secondsSinceStart, float secondsSincePrevFrame) {
 
     if (y < -1.0f) {
         vy = vy * elasticity;
-        y = -1;
+        y = -1.0f;
 
         if (vy < 0.005f) {
             vy = vy + 0.035f;
             vx = x * -0.05f;
-            std::cout << "Pop!\\n";
+            std::cout << "Launch: " << vy << '\\n';
         }
 
-        std::cout << "Boing!\\n";
+        std::cout << "Bounce: " << vy << '\\n';
     }
 
-    if (x < -1) {
+    if (x < -1.0f) {
         vx = vx * elasticity;
-        x = -1;
+        x = -1.0f;
     }
 
-    if (x > 1) {
+    if (x > 1.0f) {
         vx = vx * elasticity;
-        x = 1;
+        x = 1.0f;
     }
 
     drawCircle(x, y, 0.05);
