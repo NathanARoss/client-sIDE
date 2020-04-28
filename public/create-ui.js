@@ -129,6 +129,8 @@ function executeProgram(runtime) {
         runtime.main();
     }
 
+    Object.assign(window, runtime);
+
     activeWasmModule = runtime;
     compileTimestamp = performance.now() / 1000;
     prevTimeStamp = compileTimestamp;
