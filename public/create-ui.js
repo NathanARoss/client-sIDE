@@ -83,6 +83,11 @@ function printToConsole(value) {
     } else {
         consoleOutput.lastChild.nodeValue += value;
     }
+
+    //if the user is scrolled near the bottom of the console, new messages should scroll the container automatically
+    if (consoleOutput.scrollHeight - consoleOutput.scrollTop - 20 < consoleOutput.clientHeight) {
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
 }
 
 function drawCircle(x, y, r) {
