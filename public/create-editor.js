@@ -16,7 +16,7 @@ float elasticity;
 void launch() {
     vy = vy + 0.035f;
     vx = x * -0.05f;
-    std::cout << "Launch: " << vy << '\n';
+    std::cout << "Launch: " << vy << '\\n';
 }
 
 void main() {
@@ -40,7 +40,7 @@ void update(float secondsSinceStart, float secondsSincePrevFrame) {
             launch();
         }
 
-        std::cout << "Bounce: " << vy << '\n';
+        std::cout << "Bounce: " << vy << '\\n';
     }
 
     if (x < -1.0f) {
